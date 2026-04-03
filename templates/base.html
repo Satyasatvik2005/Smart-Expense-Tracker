@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Expense Tracker</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div>
+                <div class="brand">
+                    <div class="brand-logo">₹</div>
+                    <div>
+                        <h2>Expense Tracker</h2>
+                        <p>Smart monthly manager</p>
+                    </div>
+                </div>
+
+                <nav class="nav-links">
+                    <a href="{{ url_for('index') }}" class="nav-item">Dashboard</a>
+                    <a href="{{ url_for('add_expense') }}" class="nav-item">Add Expense</a>
+                    <a href="{{ url_for('transactions') }}" class="nav-item">Transactions</a>
+                    <a href="{{ url_for('budget') }}" class="nav-item">Budget</a>
+                    <a href="{{ url_for('reports') }}" class="nav-item">Reports</a>
+                </nav>
+            </div>
+
+            <div class="sidebar-footer">
+                <p>Track smarter. Save better.</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <h1>Smart Monthly Expense Tracker</h1>
+                    <p>Organize your spending with style and insights</p>
+                </div>
+            </header>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-wrapper">
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

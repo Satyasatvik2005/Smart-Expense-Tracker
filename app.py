@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import sqlite3
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 app.secret_key = "expense_tracker_secret_key"
@@ -8,7 +9,7 @@ DB_NAME = "database.db"
 
 
 # -----------------------------
-# Database Connection
+# Database connection
 # -----------------------------
 def get_db_connection():
     conn = sqlite3.connect(DB_NAME)
@@ -17,7 +18,7 @@ def get_db_connection():
 
 
 # -----------------------------
-# Initialize Database
+# Initialize database
 # -----------------------------
 def init_db():
     conn = get_db_connection()
@@ -46,7 +47,7 @@ def init_db():
 
 
 # -----------------------------
-# Helper Functions
+# Helper functions
 # -----------------------------
 def get_current_month():
     return datetime.now().strftime("%Y-%m")
@@ -169,6 +170,7 @@ def generate_insights(current_month):
 # -----------------------------
 @app.route("/")
 def index():
+    init_db()
     months_list = get_available_months()
     selected_month = request.args.get("month")
 
@@ -224,6 +226,8 @@ def index():
 
 @app.route("/add", methods=["GET", "POST"])
 def add_expense():
+    init_db()
+
     if request.method == "POST":
         amount = request.form.get("amount")
         category = request.form.get("category")
@@ -250,6 +254,7 @@ def add_expense():
 
 @app.route("/transactions")
 def transactions():
+    init_db()
     conn = get_db_connection()
     expenses = conn.execute("""
         SELECT * FROM expenses
@@ -262,6 +267,7 @@ def transactions():
 
 @app.route("/edit/<int:expense_id>", methods=["GET", "POST"])
 def edit_expense(expense_id):
+    init_db()
     conn = get_db_connection()
     expense = conn.execute(
         "SELECT * FROM expenses WHERE id = ?",
@@ -301,6 +307,7 @@ def edit_expense(expense_id):
 
 @app.route("/delete/<int:expense_id>")
 def delete_expense(expense_id):
+    init_db()
     conn = get_db_connection()
     conn.execute("DELETE FROM expenses WHERE id = ?", (expense_id,))
     conn.commit()
@@ -312,6 +319,7 @@ def delete_expense(expense_id):
 
 @app.route("/budget", methods=["GET", "POST"])
 def budget():
+    init_db()
     months_list = get_available_months()
     selected_month = request.args.get("month", get_current_month())
 
@@ -359,6 +367,7 @@ def budget():
 
 @app.route("/reports")
 def reports():
+    init_db()
     months_list = get_available_months()
     selected_month = request.args.get("month")
 
@@ -418,8 +427,10 @@ def reports():
 
 
 # -----------------------------
-# Run App
+# App startup
 # -----------------------------
+init_db()
+
 if __name__ == "__main__":
-    init_db()
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
